@@ -2,159 +2,120 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
-export default function CoursePage({ content, title, stageInfo }) {
-  // 简单的 Markdown 渲染
-  const renderMarkdown = (md, stageId) => {
-    // 课程阶段标题映射
-    const stageTitles = {
-      '01-intro': '课程介绍与环境准备',
-      '02-concepts': '理解核心概念',
-      '03-memory': 'CLAUDE.md 内存系统',
-      '04-commands': '命令(Command)使用',
-      '05-subagents': '子代理(Subagent)配置',
-      '06-skills': '技能(Skill)开发',
-      '07-hooks': 'Hooks钩子系统',
-      '08-mcp': 'MCP服务器配置',
-      '09-orchestration': '编排工作流',
-      '10-settings': 'Settings配置详解',
-      '11-permissions': '权限与安全',
-      '12-workflows': '团队协作与工作流',
-    };
+const stageTitles = {
+  '01-intro': '课程介绍与环境准备',
+  '02-concepts': '理解核心概念',
+  '03-memory': 'CLAUDE.md 内存系统',
+  '04-commands': '命令使用',
+  '05-subagents': '子代理配置',
+  '06-skills': '技能开发',
+  '07-hooks': '钩子系统',
+  '08-mcp': 'MCP 服务器配置',
+  '09-orchestration': '编排工作流',
+  '10-settings': 'Settings 配置',
+  '11-permissions': '权限与安全',
+  '12-workflows': '团队协作',
+};
 
-    // 修复链接：移除 README.md 后缀，添加 .html 或保持干净路径
+export default function CoursePage({ content, stageInfo }) {
+  const title = stageTitles[stageInfo.id] || stageInfo.id;
+  const stageNum = parseInt(stageInfo.id.split('-')[0]);
+  const prevStage = stageNum > 1 ? `${String(stageNum - 1).padStart(2, '0')}-${stageNum === 2 ? 'concepts' : stageNum === 3 ? 'memory' : stageNum === 4 ? 'commands' : stageNum === 5 ? 'subagents' : stageNum === 6 ? 'skills' : stageNum === 7 ? 'hooks' : stageNum === 8 ? 'mcp' : stageNum === 9 ? 'orchestration' : stageNum === 10 ? 'settings' : stageNum === 11 ? 'permissions' : 'workflows'}` : null;
+  const nextStage = stageNum < 12 ? `${String(stageNum + 1).padStart(2, '0')}-${stageNum === 1 ? 'concepts' : stageNum === 2 ? 'memory' : stageNum === 3 ? 'commands' : stageNum === 4 ? 'subagents' : stageNum === 5 ? 'skills' : stageNum === 6 ? 'hooks' : stageNum === 7 ? 'mcp' : stageNum === 8 ? 'orchestration' : stageNum === 9 ? 'settings' : stageNum === 10 ? 'permissions' : 'workflows'}` : null;
+
+  const getNextStageName = (num) => {
+    const names = ['', 'concepts', 'memory', 'commands', 'subagents', 'skills', 'hooks', 'mcp', 'orchestration', 'settings', 'permissions', 'workflows'];
+    return names[num] || '';
+  };
+
+  const renderMarkdown = (md, stageId) => {
     let html = md
-      // 修复相对路径链接
       .replace(/href="\.\/([^"]+)\.md"/g, 'href="/course/stages/$1"')
-      .replace(/href="\.\.\/([^"]+)\.md"/g, (match, p1) => {
-        // 解析相对路径
-        const currentNum = parseInt(stageId.split('-')[0]);
-        const targetNum = parseInt(p1.split('-')[0]);
-        const diff = targetNum - currentNum;
-        if (diff === 1) {
-          return `href="/course/stages/${p1}"`;
-        }
-        return `href="/course/stages/${p1}"`;
-      })
       .replace(/href="(\d+)-(\w+)\/README\.md"/g, 'href="/course/stages/$1-$2"')
-      // 标题
-      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mt-6 mb-3">$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-8 mb-4">$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mt-8 mb-6">$1</h1>')
-      // 粗体和斜体
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // 代码块
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto my-4"><code>$2</code></pre>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-red-600">$1</code>')
-      // 链接 - 通用修复
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
-        // 如果是相对路径，修复它
         if (url.endsWith('.md')) {
           const fixedUrl = url.replace(/\/README\.md$/, '').replace(/^\.\.\/(\d+)-/, '/course/stages/$1-');
           return `<a href="${fixedUrl}" class="text-blue-600 hover:underline">${text}</a>`;
         }
         return `<a href="${url}" class="text-blue-600 hover:underline" target="_blank" rel="noopener">${text}</a>`;
       })
-      // 列表
-      .replace(/^- (.*$)/gm, '<li class="ml-4">$1</li>')
-      .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
-      // 表格（简单处理）
-      .replace(/\|(.*)\|/g, (match) => {
-        const cells = match.split('|').filter(c => c.trim());
-        if (cells.some(c => c.includes('---'))) return '';
-        return `<tr>${cells.map(c => `<td class="border px-3 py-2">${c}</td>`).join('')}</tr>`;
-      })
-      // 段落
-      .replace(/\n\n/g, '</p><p class="my-4">')
-      // 换行
+      .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-8 mb-3">$1</h4>')
+      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-10 mb-4">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-12 mb-5">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-semibold mb-8">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-gray-900 text-gray-100 p-5 rounded-xl overflow-x-auto my-6 font-mono text-sm"><code>$2</code></pre>')
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-sm">$1</code>')
+      .replace(/^- (.*$)/gm, '<li class="ml-5 mb-2 text-gray-600">$1</li>')
+      .replace(/^\d+\. (.*$)/gm, '<li class="ml-5 mb-2 list-decimal text-gray-600">$1</li>')
+      .replace(/\n\n/g, '</p><p class="mb-5 text-gray-600 leading-relaxed">')
       .replace(/\n/g, '<br/>');
 
     return `<div class="prose max-w-none">${html}</div>`;
   };
 
-  // 课程阶段标题映射
-  const getStageTitle = (stageId) => {
-    const titles = {
-      '01-intro': '课程介绍与环境准备',
-      '02-concepts': '理解核心概念',
-      '03-memory': 'CLAUDE.md 内存系统',
-      '04-commands': '命令(Command)使用',
-      '05-subagents': '子代理(Subagent)配置',
-      '06-skills': '技能(Skill)开发',
-      '07-hooks': 'Hooks钩子系统',
-      '08-mcp': 'MCP服务器配置',
-      '09-orchestration': '编排工作流',
-      '10-settings': 'Settings配置详解',
-      '11-permissions': '权限与安全',
-      '12-workflows': '团队协作与工作流',
-    };
-    return titles[stageId] || stageId;
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #fafafa 0%, #f5f5f7 100%)' }}>
       {/* 顶部导航 */}
-      <nav className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="sticky top-0 z-50 glass">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <a href="/" className="text-lg hover:text-blue-200">← 返回首页</a>
-            <h1 className="text-xl font-bold">{getStageTitle(stageInfo.id)}</h1>
+            <a href="/" className="text-sm font-medium hover:opacity-70 transition" style={{ color: '#0071e3' }}>
+              ← 返回
+            </a>
+            <span className="text-sm px-3 py-1 rounded" style={{ background: '#f5f5f7', color: '#86868b' }}>
+              {String(stageNum).padStart(2, '0')}
+            </span>
+            <h1 className="text-lg font-semibold" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+              {title}
+            </h1>
           </div>
-          <a href="/course" className="text-white hover:text-blue-200">课程目录</a>
+          <a href="/" className="text-sm" style={{ color: '#86868b' }}>课程目录</a>
         </div>
-      </nav>
+      </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <article dangerouslySetInnerHTML={{ __html: renderMarkdown(content, stageInfo.id) }} />
-        </div>
+      {/* 课程内容 */}
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        <article className="bg-white rounded-2xl p-10 shadow-sm border"
+                 style={{ borderColor: '#e8e8ed' }}
+                 dangerouslySetInnerHTML={{ __html: renderMarkdown(content, stageInfo.id) }} />
 
         {/* 底部导航 */}
-        <div className="flex justify-between mt-8">
-          <a href="/" className="text-blue-600 hover:underline">← 返回课程目录</a>
+        <div className="flex justify-between mt-10 pt-8 border-t" style={{ borderColor: '#e8e8ed' }}>
+          {prevStage ? (
+            <a href={`/course/stages/${String(stageNum - 1).padStart(2, '0')}-${getNextStageName(stageNum - 1)}`}
+               className="text-sm font-medium hover:opacity-70 transition"
+               style={{ color: '#0071e3' }}>
+              ← 上一课
+            </a>
+          ) : <div />}
+
+          {nextStage && (
+            <a href={`/course/stages/${String(stageNum + 1).padStart(2, '0')}-${getNextStageName(stageNum + 1)}`}
+               className="text-sm font-medium hover:opacity-70 transition"
+               style={{ color: '#0071e3' }}>
+              下一课 →
+            </a>
+          )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
 
 export async function getStaticPaths() {
-  const stages = [
-    '01-intro', '02-concepts', '03-memory', '04-commands', '05-subagents',
-    '06-skills', '07-hooks', '08-mcp', '09-orchestration', '10-settings',
-    '11-permissions', '12-workflows'
-  ];
-
-  const paths = stages.map(stage => ({
-    params: { stage }
-  }));
-
-  return { paths, fallback: false };
+  const stages = ['01-intro', '02-concepts', '03-memory', '04-commands', '05-subagents', '06-skills', '07-hooks', '08-mcp', '09-orchestration', '10-settings', '11-permissions', '12-workflows'];
+  return { paths: stages.map(stage => ({ params: { stage } })), fallback: false };
 }
 
 export async function getStaticProps({ params }) {
   const stage = params.stage;
   const filePath = path.join(process.cwd(), 'course', 'stages', stage, 'README.md');
-
-  let content = '';
-  let title = '课程';
-  let description = '';
-
+  let content = '# 页面未找到';
   try {
     const fileContent = fs.readFileSync(filePath, 'utf8');
-    const { data, content: md } = matter(fileContent);
-    content = md;
-    title = data.title || stage;
-    description = data.description || '';
-  } catch (e) {
-    content = '# 页面未找到\n\n请返回首页选择课程。';
-  }
-
-  const stageInfo = {
-    id: stage,
-    title: title,
-    description: description
-  };
-
-  return { props: { content, title, stageInfo } };
+    content = matter(fileContent).content;
+  } catch (e) { }
+  return { props: { content, stageInfo: { id: stage } } };
 }
