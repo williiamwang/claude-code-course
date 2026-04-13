@@ -30,56 +30,55 @@ export default function CoursePage({ content, stageInfo }) {
       .replace(/href="(\d+)-(\w+)\/README\.md"/g, 'href="/course/stages/$1-$2"')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
         if (url.endsWith('.md')) {
-          const fixedUrl = url.replace(/\/README\.md$/, '');
-          return `<a href="${fixedUrl}" style="color:#2997ff">${text}</a>`;
+          return `<a href="${url.replace(/\/README\.md$/, '')}" style="color:#2997ff">${text}</a>`;
         }
         return `<a href="${url}" style="color:#2997ff" target="_blank" rel="noopener">${text}</a>`;
       })
-      .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-10 mb-4 text-white">$1</h4>')
-      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-12 mb-5 text-white" style="font-family:Playfair Display,serif">$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-14 mb-6 text-white" style="font-family:Playfair Display,serif">$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-4xl font-semibold mb-10 text-white" style="font-family:Playfair Display,serif">$1</h1>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
+      .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-10 mb-4" style="color:#f5f5f7">$1</h4>')
+      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-12 mb-5 font-title" style="color:#f5f5f7">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-14 mb-6 font-title" style="color:#f5f5f7">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-4xl font-semibold mb-10 font-title" style="color:#f5f5f7">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#f5f5f7;font-weight:600">$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-[#0a0a0a] text-[#e8e8ed] p-5 rounded-xl overflow-x-auto my-6 font-mono text-sm border" style="border-color:rgba(255,255,255,0.1)"><code>$2</code></pre>')
-      .replace(/`(.*?)`/g, '<code class="bg-[#262626] text-[#2997ff] px-2 py-0.5 rounded text-sm font-mono" style="border:1px solid rgba(255,255,255,0.08)">$1</code>')
-      .replace(/^- (.*$)/gm, '<li class="ml-5 mb-3 text-[#a1a1a6]">$1</li>')
-      .replace(/^\d+\. (.*$)/gm, '<li class="ml-5 mb-3 list-decimal text-[#a1a1a6]">$1</li>')
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-[#1d1d1f] text-[#e8e8ed] p-5 rounded-xl overflow-x-auto my-6 font-mono text-sm border" style="border-color:rgba(255,255,255,0.1)"><code>$2</code></pre>')
+      .replace(/`(.*?)`/g, '<code class="bg-[#2d2d2f] text-[#2997ff] px-2 py-0.5 rounded text-sm font-mono" style="border:1px solid rgba(255,255,255,0.08)">$1</code>')
+      .replace(/^- (.*$)/gm, '<li class="ml-5 mb-3" style="color:#a1a1a6">$1</li>')
+      .replace(/^\d+\. (.*$)/gm, '<li class="ml-5 mb-3 list-decimal" style="color:#a1a1a6">$1</li>')
       .replace(/\|(.*)\|/g, (match) => {
         const cells = match.split('|').filter(c => c.trim());
         if (cells.some(c => c.includes('---'))) return '';
         return `<tr>${cells.map(c => `<td class="border p-3" style="border-color:rgba(255,255,255,0.1)">${c}</td>`).join('')}</tr>`;
       })
-      .replace(/\n\n/g, '</p><p class="mb-5 text-[#a1a1a6] leading-relaxed">')
+      .replace(/\n\n/g, '</p><p class="mb-5" style="color:#a1a1a6">')
       .replace(/\n/g, '<br/>');
 
-    return `<div class="course-content">${html}</div>`;
+    return `<div class="course-prose">${html}</div>`;
   };
 
   return (
-    <div className="min-h-screen tech-grid" style={{ background: '#000' }}>
-      {/* 顶部导航 */}
-      <header className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(40px)' }}>
+    <div className="min-h-screen bg-noise gradient-subtle">
+      {/* 导航 */}
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-apple">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <a href="/" className="text-sm font-medium transition hover:opacity-70" style={{ color: '#2997ff' }}>
               ← 返回
             </a>
-            <span className="text-xs font-mono px-3 py-1 rounded" style={{ background: 'rgba(41,151,255,0.15)', color: '#2997ff' }}>
-              {String(stageNum).padStart(2, '0')}
-            </span>
-            <h1 className="text-base font-medium" style={{ fontFamily: "'Playfair Display', serif" }}>
-              {title}
-            </h1>
+            <span className="tag-apple">{String(stageNum).padStart(2, '0')}</span>
+            <h1 className="text-base font-semibold font-title">{title}</h1>
           </div>
           <a href="/" className="text-sm" style={{ color: '#6e6e73' }}>课程目录</a>
         </div>
-      </header>
+      </nav>
 
       {/* 课程内容 */}
       <main className="max-w-4xl mx-auto px-6 py-32">
-        <article className="p-10 rounded-3xl border glow"
-                 style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
+        <article className="p-10 rounded-3xl border animate-fade-in-up"
+                 style={{
+                   background: 'linear-gradient(180deg, rgba(25,25,27,0.9) 0%, rgba(20,20,22,0.9) 100%)',
+                   borderColor: 'rgba(255,255,255,0.08)',
+                   boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
+                 }}
                  dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
 
         {/* 底部导航 */}
