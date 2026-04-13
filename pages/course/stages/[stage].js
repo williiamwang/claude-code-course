@@ -17,84 +17,83 @@ const stageTitles = {
   '12-workflows': '团队协作',
 };
 
+const stageKeys = ['intro', 'concepts', 'memory', 'commands', 'subagents', 'skills', 'hooks', 'mcp', 'orchestration', 'settings', 'permissions', 'workflows'];
+
 export default function CoursePage({ content, stageInfo }) {
   const title = stageTitles[stageInfo.id] || stageInfo.id;
   const stageNum = parseInt(stageInfo.id.split('-')[0]);
-  const prevStage = stageNum > 1 ? `${String(stageNum - 1).padStart(2, '0')}-${stageNum === 2 ? 'concepts' : stageNum === 3 ? 'memory' : stageNum === 4 ? 'commands' : stageNum === 5 ? 'subagents' : stageNum === 6 ? 'skills' : stageNum === 7 ? 'hooks' : stageNum === 8 ? 'mcp' : stageNum === 9 ? 'orchestration' : stageNum === 10 ? 'settings' : stageNum === 11 ? 'permissions' : 'workflows'}` : null;
-  const nextStage = stageNum < 12 ? `${String(stageNum + 1).padStart(2, '0')}-${stageNum === 1 ? 'concepts' : stageNum === 2 ? 'memory' : stageNum === 3 ? 'commands' : stageNum === 4 ? 'subagents' : stageNum === 5 ? 'skills' : stageNum === 6 ? 'hooks' : stageNum === 7 ? 'mcp' : stageNum === 8 ? 'orchestration' : stageNum === 9 ? 'settings' : stageNum === 10 ? 'permissions' : 'workflows'}` : null;
 
-  const getNextStageName = (num) => {
-    const names = ['', 'concepts', 'memory', 'commands', 'subagents', 'skills', 'hooks', 'mcp', 'orchestration', 'settings', 'permissions', 'workflows'];
-    return names[num] || '';
-  };
+  const getStageId = (num) => `${String(num).padStart(2, '0')}-${stageKeys[num - 1]}`;
 
-  const renderMarkdown = (md, stageId) => {
+  const renderMarkdown = (md) => {
     let html = md
-      .replace(/href="\.\/([^"]+)\.md"/g, 'href="/course/stages/$1"')
       .replace(/href="(\d+)-(\w+)\/README\.md"/g, 'href="/course/stages/$1-$2"')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
         if (url.endsWith('.md')) {
-          const fixedUrl = url.replace(/\/README\.md$/, '').replace(/^\.\.\/(\d+)-/, '/course/stages/$1-');
-          return `<a href="${fixedUrl}" class="text-blue-600 hover:underline">${text}</a>`;
+          const fixedUrl = url.replace(/\/README\.md$/, '');
+          return `<a href="${fixedUrl}" style="color:#2997ff">${text}</a>`;
         }
-        return `<a href="${url}" class="text-blue-600 hover:underline" target="_blank" rel="noopener">${text}</a>`;
+        return `<a href="${url}" style="color:#2997ff" target="_blank" rel="noopener">${text}</a>`;
       })
-      .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-8 mb-3">$1</h4>')
-      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-10 mb-4">$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-12 mb-5">$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-semibold mb-8">$1</h1>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-semibold mt-10 mb-4 text-white">$1</h4>')
+      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold mt-12 mb-5 text-white" style="font-family:Playfair Display,serif">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mt-14 mb-6 text-white" style="font-family:Playfair Display,serif">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-4xl font-semibold mb-10 text-white" style="font-family:Playfair Display,serif">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-gray-900 text-gray-100 p-5 rounded-xl overflow-x-auto my-6 font-mono text-sm"><code>$2</code></pre>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-sm">$1</code>')
-      .replace(/^- (.*$)/gm, '<li class="ml-5 mb-2 text-gray-600">$1</li>')
-      .replace(/^\d+\. (.*$)/gm, '<li class="ml-5 mb-2 list-decimal text-gray-600">$1</li>')
-      .replace(/\n\n/g, '</p><p class="mb-5 text-gray-600 leading-relaxed">')
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-[#0a0a0a] text-[#e8e8ed] p-5 rounded-xl overflow-x-auto my-6 font-mono text-sm border" style="border-color:rgba(255,255,255,0.1)"><code>$2</code></pre>')
+      .replace(/`(.*?)`/g, '<code class="bg-[#262626] text-[#2997ff] px-2 py-0.5 rounded text-sm font-mono" style="border:1px solid rgba(255,255,255,0.08)">$1</code>')
+      .replace(/^- (.*$)/gm, '<li class="ml-5 mb-3 text-[#a1a1a6]">$1</li>')
+      .replace(/^\d+\. (.*$)/gm, '<li class="ml-5 mb-3 list-decimal text-[#a1a1a6]">$1</li>')
+      .replace(/\|(.*)\|/g, (match) => {
+        const cells = match.split('|').filter(c => c.trim());
+        if (cells.some(c => c.includes('---'))) return '';
+        return `<tr>${cells.map(c => `<td class="border p-3" style="border-color:rgba(255,255,255,0.1)">${c}</td>`).join('')}</tr>`;
+      })
+      .replace(/\n\n/g, '</p><p class="mb-5 text-[#a1a1a6] leading-relaxed">')
       .replace(/\n/g, '<br/>');
 
-    return `<div class="prose max-w-none">${html}</div>`;
+    return `<div class="course-content">${html}</div>`;
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #fafafa 0%, #f5f5f7 100%)' }}>
+    <div className="min-h-screen tech-grid" style={{ background: '#000' }}>
       {/* 顶部导航 */}
-      <header className="sticky top-0 z-50 glass">
+      <header className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(40px)' }}>
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <a href="/" className="text-sm font-medium hover:opacity-70 transition" style={{ color: '#0071e3' }}>
+            <a href="/" className="text-sm font-medium transition hover:opacity-70" style={{ color: '#2997ff' }}>
               ← 返回
             </a>
-            <span className="text-sm px-3 py-1 rounded" style={{ background: '#f5f5f7', color: '#86868b' }}>
+            <span className="text-xs font-mono px-3 py-1 rounded" style={{ background: 'rgba(41,151,255,0.15)', color: '#2997ff' }}>
               {String(stageNum).padStart(2, '0')}
             </span>
-            <h1 className="text-lg font-semibold" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <h1 className="text-base font-medium" style={{ fontFamily: "'Playfair Display', serif" }}>
               {title}
             </h1>
           </div>
-          <a href="/" className="text-sm" style={{ color: '#86868b' }}>课程目录</a>
+          <a href="/" className="text-sm" style={{ color: '#6e6e73' }}>课程目录</a>
         </div>
       </header>
 
       {/* 课程内容 */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <article className="bg-white rounded-2xl p-10 shadow-sm border"
-                 style={{ borderColor: '#e8e8ed' }}
-                 dangerouslySetInnerHTML={{ __html: renderMarkdown(content, stageInfo.id) }} />
+      <main className="max-w-4xl mx-auto px-6 py-32">
+        <article className="p-10 rounded-3xl border glow"
+                 style={{ background: '#0a0a0a', borderColor: 'rgba(255,255,255,0.08)' }}
+                 dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
 
         {/* 底部导航 */}
-        <div className="flex justify-between mt-10 pt-8 border-t" style={{ borderColor: '#e8e8ed' }}>
-          {prevStage ? (
-            <a href={`/course/stages/${String(stageNum - 1).padStart(2, '0')}-${getNextStageName(stageNum - 1)}`}
-               className="text-sm font-medium hover:opacity-70 transition"
-               style={{ color: '#0071e3' }}>
+        <div className="flex justify-between mt-12 pt-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          {stageNum > 1 ? (
+            <a href={`/course/stages/${getStageId(stageNum - 1)}`}
+               className="text-sm font-medium transition hover:opacity-70" style={{ color: '#2997ff' }}>
               ← 上一课
             </a>
           ) : <div />}
 
-          {nextStage && (
-            <a href={`/course/stages/${String(stageNum + 1).padStart(2, '0')}-${getNextStageName(stageNum + 1)}`}
-               className="text-sm font-medium hover:opacity-70 transition"
-               style={{ color: '#0071e3' }}>
+          {stageNum < 12 && (
+            <a href={`/course/stages/${getStageId(stageNum + 1)}`}
+               className="text-sm font-medium transition hover:opacity-70" style={{ color: '#2997ff' }}>
               下一课 →
             </a>
           )}

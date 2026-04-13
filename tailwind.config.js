@@ -4,17 +4,23 @@ module.exports = {
     extend: {
       fontFamily: {
         'display': ['Playfair Display', 'Georgia', 'serif'],
-        'body': ['Source Sans 3', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'body': ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'mono': ['JetBrains Mono', 'SF Mono', 'monospace'],
       },
       colors: {
         'apple': {
-          'blue': '#0071e3',
-          'blue-hover': '#0077ed',
+          'blue': '#2997ff',
+          'dark': '#000000',
+          'gray': {
+            'primary': '#f5f5f7',
+            'secondary': '#a1a1a6',
+            'tertiary': '#6e6e73',
+          }
         }
       },
       animation: {
-        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
-        'fade-in': 'fadeIn 0.4s ease-out forwards',
+        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
       }
     },
   },
