@@ -37,25 +37,26 @@ ${context || '用户在学习课程，但没有指定具体章节'}
 4. 如果问题超出课程范围，礼貌地说明这是课程导师，只能回答课程相关问题
 5. 可以举例说明，帮助用户理解`;
 
-  // 使用 Vercel 环境变量
-  const apiKey = process.env.MINIMAX_API_KEY || 'your-api-key-here';
-  const baseURL = 'https://api.minimax.com/v1/text/chatcompletion_v2';
+  // 使用兼容 Anthropic 的 MiniMax API
+  const apiKey = process.env.MINIMAX_API_KEY || process.env.ANTHROPIC_API_KEY;
+  const baseURL = process.env.ANTHROPIC_BASE_URL || 'https://api.minimaxi.com/anthropic';
+  const model = process.env.ANTHROPIC_MODEL || 'MiniMax-M2.5';
 
   try {
-    const response = await fetch(baseURL, {
+    const response = await fetch(`${baseURL}/v1/messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'abab6.5s-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
+        model: model,
         max_tokens: 1024,
-        temperature: 0.7
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: message }
+        ]
       })
     });
 
@@ -66,7 +67,7 @@ ${context || '用户在学习课程，但没有指定具体章节'}
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || '抱歉，无法生成回答';
+    const reply = data.content?.[0]?.text || '抱歉，无法生成回答';
     res.status(200).json({ reply });
   } catch (error) {
     console.error('AI API Error:', error);
