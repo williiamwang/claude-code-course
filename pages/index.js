@@ -147,7 +147,7 @@ export default function Home() {
             {courseStages.map((stage, index) => (
               <Link
                 key={stage.id}
-                href={`/course/stages/${stage.id}/README.md`}
+                href={`/course/stages/${stage.id}`}
                 className={`block p-4 rounded-lg border transition hover:shadow-md ${
                   activeStage === stage.id
                     ? 'border-blue-500 bg-blue-50'
