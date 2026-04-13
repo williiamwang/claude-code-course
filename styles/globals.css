@@ -4,123 +4,97 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Apple 完整色彩系统 */
 :root {
   --apple-black: #000000;
-  --apple-dark: #0d0d0d;
-  --apple-gray-1: #1d1d1f;
-  --apple-gray-2: #2d2d2f;
-  --apple-gray-3: #3d3d3f;
-  --apple-white: #f5f5f7;
-  --apple-text: #f5f5f7;
-  --apple-text-secondary: #a1a1a6;
-  --apple-text-tertiary: #6e6e73;
-  --apple-blue: #2997ff;
-  --apple-blue-dim: rgba(41, 151, 255, 0.15);
-  --glass: rgba(30, 30, 30, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --apple-dark: #1d1d1f;
+  --apple-gray-1: #f5f5f7;
+  --apple-gray-2: #e8e8ed;
+  --apple-gray-3: #d2d2d7;
+  --apple-gray-4: #a1a1a6;
+  --apple-gray-5: #86868b;
+  --apple-gray-6: #6e6e73;
+  --apple-gray-7: #545456;
+  --apple-blue: #0071e3;
+  --apple-blue-light: #2997ff;
 }
 
 * {
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--apple-black);
-  color: var(--apple-text);
+  color: var(--apple-gray-1);
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
-/* Apple 风格标题字体 */
-.font-title {
+/* 字体 */
+.font-apple-display {
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
-.font-mono {
+.font-apple-text {
+  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-apple-mono {
   font-family: 'SF Mono', 'Menlo', monospace;
 }
 
-/* 背景纹理 */
-.bg-noise {
-  position: relative;
-}
-
-.bg-noise::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.02;
-  pointer-events: none;
-}
-
-/* 渐变背景 */
-.gradient-subtle {
-  background: radial-gradient(ellipse at 50% 0%, rgba(41, 151, 255, 0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 50%, rgba(41, 151, 255, 0.03) 0%, transparent 40%),
-              var(--apple-black);
+/* 背景 */
+.bg-apple-dark {
+  background: linear-gradient(180deg, #000000 0%, #1d1d1f 100%);
 }
 
 /* 毛玻璃 */
 .glass-apple {
-  background: var(--glass);
+  background: rgba(30, 30, 30, 0.8);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--glass-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* 卡片 */
 .card-apple {
-  background: linear-gradient(180deg, rgba(45, 45, 47, 0.6) 0%, rgba(30, 30, 30, 0.4) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: linear-gradient(180deg, rgba(45, 45, 47, 0.8) 0%, rgba(30, 30, 32, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  transition: all 0.3s ease;
 }
 
 .card-apple:hover {
-  background: linear-gradient(180deg, rgba(55, 55, 57, 0.7) 0%, rgba(40, 40, 40, 0.5) 100%);
-  border-color: rgba(41, 151, 255, 0.3);
+  background: linear-gradient(180deg, rgba(55, 55, 57, 0.9) 0%, rgba(40, 40, 42, 0.95) 100%);
+  border-color: rgba(0, 113, 227, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 60px rgba(41, 151, 255, 0.08);
 }
 
 /* 按钮 */
-.btn-apple {
+.btn-apple-blue {
   background: var(--apple-blue);
   color: white;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 980px;
   font-weight: 500;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
   border: none;
   cursor: pointer;
 }
 
-.btn-apple:hover {
-  background: #1da1ff;
-  transform: scale(1.02);
-  box-shadow: 0 10px 30px rgba(41, 151, 255, 0.3);
+.btn-apple-blue:hover {
+  background: #0077ed;
 }
 
 /* 动画 */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
@@ -128,110 +102,74 @@ body {
   to { opacity: 1; }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(41, 151, 255, 0.15), 0 0 40px rgba(41, 151, 255, 0.05);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(41, 151, 255, 0.25), 0 0 60px rgba(41, 151, 255, 0.1);
-  }
-}
-
 .animate-fade-in-up {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
+  animation: fadeIn 0.5s ease-out forwards;
   opacity: 0;
 }
 
-.animate-glow-pulse {
-  animation: glow-pulse 4s ease-in-out infinite;
-}
-
-/* 延迟 */
-.delay-75 { animation-delay: 75ms; }
-.delay-150 { animation-delay: 150ms; }
-.delay-225 { animation-delay: 225ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-375 { animation-delay: 375ms; }
-.delay-450 { animation-delay: 450ms; }
-.delay-525 { animation-delay: 525ms; }
-.delay-600 { animation-delay: 600ms; }
-
 /* 滚动条 */
-::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1d1d1f; }
+::-webkit-scrollbar-thumb { background: #545456; border-radius: 3px; }
+
+/* 课程内容样式 - 确保清晰可读 */
+.course-content {
+  color: #f5f5f7;
+  line-height: 1.75;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--apple-dark);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--apple-gray-3);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--apple-blue);
-}
-
-/* 课程内容样式 */
-.course-prose {
-  color: var(--apple-text-secondary);
-  line-height: 1.8;
-}
-
-.course-prose h1 {
+.course-content h1 {
   font-family: 'SF Pro Display', sans-serif;
   font-size: 2.5rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  color: #ffffff;
   margin-bottom: 1.5rem;
-  color: var(--apple-text);
 }
 
-.course-prose h2 {
+.course-content h2 {
   font-family: 'SF Pro Display', sans-serif;
   font-size: 1.75rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
-  margin-top: 3rem;
+  color: #ffffff;
+  margin-top: 2.5rem;
   margin-bottom: 1rem;
-  color: var(--apple-text);
 }
 
-.course-prose h3 {
+.course-content h3 {
   font-size: 1.25rem;
   font-weight: 600;
+  color: #ffffff;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
-  color: var(--apple-text);
 }
 
-.course-prose p {
-  margin-bottom: 1.25rem;
+.course-content p {
+  color: #d2d2d7;
+  margin-bottom: 1rem;
+  line-height: 1.8;
 }
 
-.course-prose code {
+.course-content strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.course-content code {
   font-family: 'SF Mono', monospace;
   font-size: 0.875rem;
-  background: var(--apple-gray-2);
+  background: rgba(255, 255, 255, 0.1);
   padding: 2px 8px;
   border-radius: 6px;
-  color: var(--apple-blue);
+  color: #2997ff;
 }
 
-.course-prose pre {
-  background: var(--apple-gray-1);
+.course-content pre {
+  background: #1d1d1f;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 1.5rem;
@@ -239,41 +177,39 @@ body {
   margin: 1.5rem 0;
 }
 
-.course-prose pre code {
+.course-content pre code {
   background: transparent;
   padding: 0;
   color: #e8e8ed;
+  font-size: 0.8125rem;
+  line-height: 1.6;
 }
 
-.course-prose a {
-  color: var(--apple-blue);
+.course-content a {
+  color: #2997ff;
   text-decoration: none;
 }
 
-.course-prose a:hover {
+.course-content a:hover {
   text-decoration: underline;
 }
 
-.course-prose strong {
-  color: var(--apple-text);
-  font-weight: 600;
-}
-
-.course-prose blockquote {
-  border-left: 3px solid var(--apple-blue);
-  padding-left: 1.25rem;
-  margin: 1.5rem 0;
-  color: var(--apple-text-tertiary);
-  font-style: italic;
-}
-
-.course-prose ul, .course-prose ol {
+.course-content ul, .course-content ol {
   margin: 1rem 0;
   padding-left: 1.5rem;
+  color: #d2d2d7;
 }
 
-.course-prose li {
+.course-content li {
   margin-bottom: 0.5rem;
+}
+
+.course-content blockquote {
+  border-left: 3px solid #2997ff;
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  color: #86868b;
+  font-style: italic;
 }
 
 /* 标签 */
@@ -282,6 +218,6 @@ body {
   font-size: 0.75rem;
   padding: 4px 10px;
   border-radius: 6px;
-  background: var(--apple-blue-dim);
-  color: var(--apple-blue);
+  background: rgba(41, 151, 255, 0.15);
+  color: #2997ff;
 }
