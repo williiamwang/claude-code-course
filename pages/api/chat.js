@@ -37,10 +37,17 @@ ${context || '用户在学习课程，但没有指定具体章节'}
 4. 如果问题超出课程范围，礼貌地说明这是课程导师，只能回答课程相关问题
 5. 可以举例说明，帮助用户理解`;
 
-  // 使用兼容 Anthropic 的 MiniMax API
+  // 获取 API 配置
   const apiKey = process.env.MINIMAX_API_KEY || process.env.ANTHROPIC_API_KEY;
   const baseURL = process.env.ANTHROPIC_BASE_URL || 'https://api.minimaxi.com/anthropic';
   const model = process.env.ANTHROPIC_MODEL || 'MiniMax-M2.5';
+
+  // 如果没有 API Key，返回提示
+  if (!apiKey) {
+    return res.status(200).json({
+      reply: 'AI 答疑功能尚未配置。请在 Vercel 项目设置中添加环境变量 MINIMAX_API_KEY 或 ANTHROPIC_API_KEY。'
+    });
+  }
 
   try {
     const response = await fetch(`${baseURL}/v1/messages`, {
@@ -62,15 +69,26 @@ ${context || '用户在学习课程，但没有指定具体章节'}
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Minimax API Error:', errorData);
+      console.error('Minimax API Error:', response.status, errorData);
       throw new Error(`API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const reply = data.content?.[0]?.text || '抱歉，无法生成回答';
+
+    // 处理响应格式
+    let reply = '抱歉，无法生成回答';
+    if (data.content && data.content.length > 0) {
+      const textContent = data.content.find(c => c.type === 'text');
+      if (textContent) {
+        reply = textContent.text;
+      } else if (data.content[0].text) {
+        reply = data.content[0].text;
+      }
+    }
+
     res.status(200).json({ reply });
   } catch (error) {
     console.error('AI API Error:', error);
-    res.status(500).json({ error: 'AI服务调用失败: ' + error.message });
+    res.status(200).json({ reply: 'AI 服务暂时不可用，请稍后重试。错误: ' + error.message });
   }
 }
